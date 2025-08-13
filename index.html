@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stopwatch Web App</title>
+  <style>
+    /* ===== BACKGROUND STYLE OPTIONS ===== */
+
+    /* 1. Gradient Shift */
+    body.gradient-shift {
+      background: linear-gradient(-45deg, #6e7dff, #00d4ff, #ff758c, #ff7eb3);
+      background-size: 400% 400%;
+      animation: gradientBG 10s ease infinite;
+    }
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* 2. Moving Waves */
+    body.waves {
+      background: linear-gradient(270deg, #00d4ff, #6e7dff);
+      background-size: 200% 200%;
+      animation: wavesBG 8s ease infinite;
+    }
+    @keyframes wavesBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* 3. Particle Animation (stars effect) */
+    body.particles {
+      background: black;
+      overflow: hidden;
+    }
+    body.particles::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: transparent;
+      background-image: radial-gradient(white 1px, transparent 1px);
+      background-size: 3px 3px;
+      animation: starMove 20s linear infinite;
+      opacity: 0.4;
+    }
+    @keyframes starMove {
+      from { background-position: 0 0; }
+      to { background-position: 1000px 1000px; }
+    }
+
+    /* ===== STOPWATCH DESIGN ===== */
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background: white;
+      padding: 20px 30px;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      text-align: center;
+      max-width: 350px;
+      width: 100%;
+      position: relative;
+      z-index: 1;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    #display {
+      font-size: 3rem;
+      margin: 20px 0;
+      font-weight: bold;
+    }
+
+    .buttons button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      margin: 5px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .buttons button:hover {
+      transform: scale(1.05);
+    }
+
+    #startStopBtn { background-color: #28a745; color: white; }
+    #lapBtn { background-color: #ffc107; color: white; }
+    #resetBtn { background-color: #dc3545; color: white; }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 15px;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+
+    ul li {
+      background: #f1f1f1;
+      margin: 5px 0;
+      padding: 8px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body class="gradient-shift"> <!-- Change this to 'waves' or 'particles' -->
+
+  <div class="container">
+    <h1>Stopwatch</h1>
+    <div id="display">00:00:00</div>
+    
+    <div class="buttons">
+      <button id="startStopBtn">Start</button>
+      <button id="lapBtn">Lap</button>
+      <button id="resetBtn">Reset</button>
+    </div>
+
+    <ul id="laps"></ul>
+  </div>
+
+  <script>
+    let startTime;
+    let elapsedTime = 0;
+    let timerInterval;
+    let running = false;
+
+    const display = document.getElementById("display");
+    const startStopBtn = document.getElementById("startStopBtn");
+    const lapBtn = document.getElementById("lapBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const lapsList = document.getElementById("laps");
+
+    function updateTime() {
+      const time = Date.now() - startTime + elapsedTime;
+      let hours = Math.floor(time / (1000 * 60 * 60));
+      let minutes = Math.floor((time % (1000 * 60 * 60)) / (1000 * 60));
+      let seconds = Math.floor((time % (1000 * 60)) / 1000);
+
+      hours = String(hours).padStart(2, "0");
+      minutes = String(minutes).padStart(2, "0");
+      seconds = String(seconds).padStart(2, "0");
+
+      display.textContent = `${hours}:${minutes}:${seconds}`;
+    }
+
+    startStopBtn.addEventListener("click", () => {
+      if (!running) {
+        startTime = Date.now();
+        timerInterval = setInterval(updateTime, 1000);
+        startStopBtn.textContent = "Pause";
+        running = true;
+      } else {
+        clearInterval(timerInterval);
+        elapsedTime += Date.now() - startTime;
+        startStopBtn.textContent = "Start";
+        running = false;
+      }
+    });
+
+    lapBtn.addEventListener("click", () => {
+      if (running) {
+        const lapTime = display.textContent;
+        const li = document.createElement("li");
+        li.textContent = `Lap: ${lapTime}`;
+        lapsList.appendChild(li);
+      }
+    });
+
+    resetBtn.addEventListener("click", () => {
+      clearInterval(timerInterval);
+      display.textContent = "00:00:00";
+      elapsedTime = 0;
+      running = false;
+      startStopBtn.textContent = "Start";
+      lapsList.innerHTML = "";
+    });
+  </script>
+
+</body>
+</html>
